@@ -1,0 +1,233 @@
+<div class="bg-light">
+    <div class="bg-info">
+        <div class="container">
+            <h1 class="text-white pb-2">Books Api</h1>
+        </div>
+    </div>
+    <br>
+    <div class="d-flex flex-row">
+        <div class="col-md-2"></div>
+        <div class="col-md-5">
+            <div class="d-flex justify-content-start">
+                <div *ngIf="!mostrar">
+                    <button class="btn btn-primary me-2 d-flex" (click)="paginacion(1, 1)">Paginar</button>
+                </div>
+                <div *ngIf="mostrar">
+                    <button class="btn btn-primary me-2 d-flex" (click)="paginacion(0, 1)">Mostrar todos</button>
+                </div>
+                <div>
+                    <button class="btn btn-primary ms-2 d-flex" (click)="vacear()" data-bs-toggle="modal" data-bs-target="#registro">Crear</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <form [formGroup]="search" (ngSubmit)="buscar()" class="d-flex justify-content-end">
+                <input type="number" min="1" max="200" class="form-control ms-5" name="search" id="inputSearch" formControlName="id" required placeholder="Buscar"><button class="btn btn-success ms-2">Buscar</button>
+            </form>
+        </div>
+        </div>
+        
+    <br>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <div id="alertas"></div>
+            <table class="table table-striped table-hover table-bordered rounded-3 text-center">
+                <thead>
+                    <tr class="table-dark">
+                        <th>Id</th>
+                        <th>Titulo</th>
+                        <th>Descripcion</th>
+                        <th>Detalles</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody *ngIf="books[0] == undefined">
+                    <tr *ngFor="let item of allBooks">
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.description }}</td>
+                        <td><button class="btn btn-info" (click)="verDetalles(item.id)" data-bs-toggle="modal" data-bs-target="#detalles">Detalles</button></td>
+                        <td><button class="btn btn-warning" (click)="editar(item.id)" data-bs-toggle="modal" data-bs-target="#registro">Editar</button></td>
+                        <td><button class="btn btn-danger" (click)="eliminarLibro(item.id, false)" data-bs-toggle="modal" data-bs-target="#eliminar">Eliminar</button></td>
+                    </tr>
+                </tbody>
+                <tbody *ngIf="books[0] != undefined">
+                    <tr *ngFor="let item of books">
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.description }}</td>
+                        <td><button class="btn btn-info" (click)="verDetalles(item.id)" data-bs-toggle="modal" data-bs-target="#detalles">Detalles</button></td>
+                        <td><button class="btn btn-warning" (click)="editar(item.id)" data-bs-toggle="modal" data-bs-target="#registro">Editar</button></td>
+                        <td><button class="btn btn-danger" (click)="eliminarLibro(item.id, false)" data-bs-toggle="modal" data-bs-target="#eliminar">Eliminar</button></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div *ngIf="mostrar && this.page != 0" class="row">
+                <div class="container mt-3">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item"><a id="anterior" class="page-link" href="#" (click)="paginacion(page - 1)">Anterior</a></li>
+                        <li class="page-item"><a id="1"class="page-link" href="#" (click)="paginacion(1)">1</a></li>
+                        <li class="page-item"><a id="2" class="page-link" href="#" (click)="paginacion(2)">2</a></li>
+                        <li class="page-item"><a id="3" class="page-link" href="#" (click)="paginacion(3)">3</a></li>
+                        <li class="page-item"><a id="4" class="page-link" href="#" (click)="paginacion(4)">4</a></li>
+                        <li class="page-item"><a id="siguiente" class="page-link" href="#" (click)="paginacion(page + 1)">Siguiente</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+</div>
+
+<!--MODALES-->
+
+<!--Modal Registro-->
+<div class="modal fade" id="registro" tabindex="-1" aria-labelledby="registroModalLabel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-white">Registrar libro</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div *ngIf="formulario.get('id')?.value != 0">
+                        <form [formGroup]="formulario" (ngSubmit)="guardar()">
+                            <div class="form-group row">
+                                <label for="id">Id:</label>
+                                <input type="text" class="form-control" id="inputId" value="{{formulario.get('id')?.value}}" name="id" formControlName="id" required placeholder="Id" readonly>
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="titulo">Titulo:</label>
+                                <input type="text" class="form-control" id="inputTitulo" name="titulo" value="{{formulario.get('title')?.value}}" formControlName="title" required placeholder="Titulo">
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="descripcion">Descripcion:</label>
+                                <input type="text" class="form-control" id="inputDescripcion" name="descripcion" value="{{formulario.get('description')?.value}}" formControlName="description" required placeholder="Descripcion">
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="paginas">Numero de paginas:</label>
+                                <input type="number" class="form-control" min="1" id="inputPaginas" name="paginas" value="{{formulario.get('pageCount')?.value}}" formControlName="pageCount" required placeholder="Numero de paginas">
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="extracto">Extracto:</label>
+                                <input type="text" class="form-control" id="inputExtracto" name="extracto" value="{{formulario.get('excerpt')?.value}}" formControlName="excerpt" required placeholder="Extracto">
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="publicacion">Fecha de publicacion:</label>
+                                <input type="datetime" class="form-control" id="inputPublicacion" name="publicacion" value="{{formulario.get('publishDate')?.value}}" formControlName="publishDate" required placeholder="Titulo">
+                            </div>
+                            <br>
+                            <button class="btn btn-success">Enviar</button>
+                            <br>
+                        </form>
+                    </div>
+                    <div *ngIf="formulario.get('id')?.value == 0">
+                        <form [formGroup]="formulario" (ngSubmit)="crearLibro()">
+                            <div class="form-group row">
+                                <label for="id">Id:</label>
+                                <input type="text" class="form-control" id="inputId" value="{{formulario.get('id')?.value}}" name="id" formControlName="id" required placeholder="Id" readonly>
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="titulo">Titulo:</label>
+                                <input type="text" class="form-control" id="inputTitulo" name="titulo" value="{{formulario.get('title')?.value}}" formControlName="title" required placeholder="Titulo">
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="descripcion">Descripcion:</label>
+                                <input type="text" class="form-control" id="inputDescripcion" name="descripcion" value="{{formulario.get('description')?.value}}" formControlName="description" required placeholder="Descripcion">
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="paginas">Numero de paginas:</label>
+                                <input type="number" class="form-control" min="1" id="inputPaginas" name="paginas" value="{{formulario.get('pageCount')?.value}}" formControlName="pageCount" required placeholder="Numero de paginas">
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="extracto">Extracto:</label>
+                                <input type="text" class="form-control" id="inputExtracto" name="extracto" value="{{formulario.get('excerpt')?.value}}" formControlName="excerpt" required placeholder="Extracto">
+                            </div>
+                            <br>
+                            <div class="form-group row">
+                                <label for="publicacion">Fecha de publicacion:</label>
+                                <input type="date" class="form-control" id="inputPublicacion" name="publicacion" value="{{formulario.get('publishDate')?.value}}" formControlName="publishDate" required placeholder="Titulo">
+                            </div>
+                            <br>
+                            <button class="btn btn-success">Enviar</button>
+                            <br>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="pt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal Detalles-->
+<div class="modal fade" id="detalles" tabindex="-1" aria-labelledby="detallesModalLabel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title text-white" id="detallesModalLabel">Detalles del libro</h5>
+                <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div *ngIf="selectedUser">
+                    <h3>Titulo:</h3>
+                    <h6 class="ps-1">{{selectedUser.title}}</h6>
+                    <br>
+                    <h3>Descripcion:</h3>
+                    <h6 class="ps-1">{{selectedUser.description}}</h6>
+                    <br>
+                    <h3>Cantidad de paginas:</h3>
+                    <h6 class="ps-1">{{selectedUser.pageCount}}</h6>
+                    <br>
+                    <h3>Extracto:</h3>
+                    <h6 class="ps-1">{{selectedUser.excerpt}}</h6>
+                    <br>
+                    <h3>Fecha de publicacion:</h3>
+                    <h6 class="ps-1">{{selectedUser.publishDate}}</h6>
+                    <br>
+                    <h3>Identificador:</h3>
+                    <h6 class="ps-1">{{selectedUser.id}}</h6>
+                    <br>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal Eliminar-->
+<div class="modal fade" id="eliminar" tabindex="-1" aria-labelledby="eliminarModalLabel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-tile text-white">Advertencia</h5>
+                <button class="btn-close" data-bs-dismiss="modal" aria-label="close"></button>
+            </div>
+            <div class="modal-body">
+                <div *ngIf="selectedUser">
+                    <h5>¿Seguro que quieres eliminar el libro {{selectedUser.title}} con el ID {{selectedUser.id}}?</h5>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-warning" (click)="eliminarLibro(selectedUser.id, true)">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
